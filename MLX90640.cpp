@@ -1357,16 +1357,15 @@ MLX90640::MLX90640(LibXR::HardwareContainer &hw, LibXR::ApplicationManager &app,
       emissivity_(std::clamp(emissivity, 0.1f, 1.0f)),
       reflected_temperature_shift_(reflected_temperature_shift),
       use_chess_mode_(use_chess_mode), i2c_address_(i2c_address),
-      topic_temperature_(temperature_topic_name, sizeof(thermal_frame_)),
-      topic_image_(image_topic_name, sizeof(image_frame_)),
-      topic_stats_(stats_topic_name, sizeof(stats_)),
+      topic_temperature_(LibXR::Topic::CreateTopic<ThermalFrame>(
+          temperature_topic_name, nullptr, true)),
+      topic_image_(LibXR::Topic::CreateTopic<ThermalImage>(
+          image_topic_name, nullptr, true)),
+      topic_stats_(LibXR::Topic::CreateTopic<ThermalStats>(
+          stats_topic_name, nullptr, true)),
       i2c_(hw.template FindOrExit<LibXR::I2C>({i2c_name})),
       cmd_file_(LibXR::RamFS::CreateFile("mlx90640", CommandFunc, this)),
       i2c_read_block_(i2c_sem_), i2c_write_block_(i2c_sem_) {
-  topic_temperature_.EnableCache();
-  topic_image_.EnableCache();
-  topic_stats_.EnableCache();
-
   if (auto *ramfs = hw.template Find<LibXR::RamFS>({"ramfs"});
       ramfs != nullptr) {
     ramfs->Add(cmd_file_);
@@ -1382,7 +1381,7 @@ MLX90640::MLX90640(LibXR::HardwareContainer &hw, LibXR::ApplicationManager &app,
                 ErrorCodeValue(last_error_));
   }
 
-  SetFrequency(kEepromI2CFreq);
+  SetFrequency(EEPROM_I2C_FREQ);
   if (!DumpEeprom()) {
     XR_LOG_ERROR("MLX90640: EEPROM dump failed: %d", ErrorCodeValue(last_error_));
     ASSERT(false);
@@ -1403,7 +1402,7 @@ MLX90640::MLX90640(LibXR::HardwareContainer &hw, LibXR::ApplicationManager &app,
     ASSERT(false);
   }
 
-  SetFrequency(kRuntimeI2CFreq);
+  SetFrequency(RUNTIME_I2C_FREQ);
   
   XR_LOG_INFO("MLX90640: sensor initialize ok");
 
@@ -1690,10 +1689,10 @@ int MLX90640::PrintStatsLocked() const {
   }
 
   LibXR::STDIO::Printf<
-      "Frame=%lu Mode=%u Subpage=%u Ta=%.2fC Tr=%.2fC "
+      "Frame=%u Mode=%u Subpage=%u Ta=%.2fC Tr=%.2fC "
       "Vdd=%.2fV Min=%.2fC(idx=%u) "
       "Max=%.2fC(idx=%u) Avg=%.2fC Center=%.2fC Bad=%u\r\n">(
-      static_cast<unsigned long>(stats_.frame_counter), thermal_frame_.mode,
+      static_cast<unsigned int>(stats_.frame_counter), thermal_frame_.mode,
       thermal_frame_.subpage, stats_.ambient_temperature,
       stats_.reflected_temperature, stats_.supply_voltage,
       stats_.min_temperature, stats_.min_index, stats_.max_temperature,

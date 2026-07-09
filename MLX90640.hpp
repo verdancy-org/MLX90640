@@ -93,6 +93,9 @@ class MLX90640 : public LibXR::Application {
   static constexpr std::size_t AUX_COUNT = 64U;
   static constexpr std::size_t FRAME_COUNT = PIXEL_COUNT + AUX_COUNT + 2U;
   static constexpr std::size_t EEPROM_COUNT = 832U;
+  static constexpr std::size_t PIXEL_WORD_COUNT = PIXEL_COUNT;
+  static constexpr std::size_t AUX_WORD_COUNT = AUX_COUNT;
+  static constexpr std::size_t EEPROM_WORD_COUNT = EEPROM_COUNT;
   static constexpr std::size_t BAD_PIXEL_TABLE_SIZE = 5U;
 
   static constexpr int EEPROM_I2C_FREQ = 100000;
@@ -213,6 +216,9 @@ class MLX90640 : public LibXR::Application {
       const std::array<uint16_t, EEPROM_COUNT>& ee_data,
       CalibrationData& calibration);
   static void ExtractPtatParameters(
+      const std::array<uint16_t, EEPROM_COUNT>& ee_data,
+      CalibrationData& calibration);
+  static void ExtractGainParameters(
       const std::array<uint16_t, EEPROM_COUNT>& ee_data,
       CalibrationData& calibration);
   static void ExtractTgcParameters(
