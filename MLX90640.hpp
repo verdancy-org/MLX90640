@@ -2,7 +2,7 @@
 
 // clang-format off
 /* === MODULE MANIFEST V2 ===
-module_description: Melexis MLX90640 32x24 红外热成像阵列驱动模块 / Driver module for the Melexis MLX90640 32x24 thermal IR array
+module_description: XRobot Module for Melexis MLX90640 32x24 thermal IR array sensor
   - refresh_rate: MLX90640::RefreshRate::HZ_8
   - emissivity: 0.95
   - reflected_temperature_shift: 8.0
@@ -10,10 +10,10 @@ module_description: Melexis MLX90640 32x24 红外热成像阵列驱动模块 / D
   - temperature_topic_name: "mlx90640_temperature"
   - image_topic_name: "mlx90640_image"
   - stats_topic_name: "mlx90640_stats"
-  - i2c_name: "i2c1"
+  - i2c_name: "mlx90640_i2c"
   - i2c_address: 0x33
 template_args: []
-required_hardware: i2c_name
+required_hardware: mlx90640_i2c
 depends: []
 === END MANIFEST === */
 // clang-format on
