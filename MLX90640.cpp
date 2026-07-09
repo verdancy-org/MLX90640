@@ -1672,32 +1672,33 @@ static const char *ShellRefreshRateToString(MLX90640::RefreshRate refresh_rate) 
 
 
 void MLX90640::PrintUsage() const {
-  LibXR::STDIO::Printf("Usage:\r\n");
-  LibXR::STDIO::Printf(
-      "  stats                       - Show current frame statistics.\r\n");
-  LibXR::STDIO::Printf(
-      "  show [count] [interval_ms]  - Print statistics repeatedly.\r\n");
-  LibXR::STDIO::Printf(
-      "  refresh [0-7]               - Set sensor refresh rate.\r\n");
-  LibXR::STDIO::Printf("  emissivity [0.1-1.0]        - Set emissivity.\r\n");
+  LibXR::STDIO::Printf<"Usage:\r\n">();
+  LibXR::STDIO::Printf<
+      "  stats                       - Show current frame statistics.\r\n">();
+  LibXR::STDIO::Printf<
+      "  show [count] [interval_ms]  - Print statistics repeatedly.\r\n">();
+  LibXR::STDIO::Printf<
+      "  refresh [0-7]               - Set sensor refresh rate.\r\n">();
+  LibXR::STDIO::Printf<
+      "  emissivity [0.1-1.0]        - Set emissivity.\r\n">();
 }
 
 int MLX90640::PrintStatsLocked() const {
   if (!stats_.ready) {
-    LibXR::STDIO::Printf("MLX90640 frame is not ready yet.\r\n");
+    LibXR::STDIO::Printf<"MLX90640 frame is not ready yet.\r\n">();
     return 0;
   }
 
-  LibXR::STDIO::Printf("Frame=%lu Mode=%u Subpage=%u Ta=%.2fC Tr=%.2fC "
-                       "Vdd=%.2fV Min=%.2fC(idx=%u) "
-                       "Max=%.2fC(idx=%u) Avg=%.2fC Center=%.2fC Bad=%u\r\n",
-                       static_cast<unsigned long>(stats_.frame_counter),
-                       thermal_frame_.mode, thermal_frame_.subpage,
-                       stats_.ambient_temperature, stats_.reflected_temperature,
-                       stats_.supply_voltage, stats_.min_temperature,
-                       stats_.min_index, stats_.max_temperature,
-                       stats_.max_index, stats_.average_temperature,
-                       stats_.center_temperature, stats_.bad_pixel_count);
+  LibXR::STDIO::Printf<
+      "Frame=%lu Mode=%u Subpage=%u Ta=%.2fC Tr=%.2fC "
+      "Vdd=%.2fV Min=%.2fC(idx=%u) "
+      "Max=%.2fC(idx=%u) Avg=%.2fC Center=%.2fC Bad=%u\r\n">(
+      static_cast<unsigned long>(stats_.frame_counter), thermal_frame_.mode,
+      thermal_frame_.subpage, stats_.ambient_temperature,
+      stats_.reflected_temperature, stats_.supply_voltage,
+      stats_.min_temperature, stats_.min_index, stats_.max_temperature,
+      stats_.max_index, stats_.average_temperature, stats_.center_temperature,
+      stats_.bad_pixel_count);
   return 0;
 }
 
@@ -1728,18 +1729,18 @@ int MLX90640::HandleCommand(int argc, char **argv) {
   if (argc == 3 && std::strcmp(argv[1], "refresh") == 0) {
     const int rate = std::atoi(argv[2]);
     if (rate < 0 || rate > 7) {
-      LibXR::STDIO::Printf("Error: refresh rate must be in [0, 7].\r\n");
+      LibXR::STDIO::Printf<"Error: refresh rate must be in [0, 7].\r\n">();
       return -1;
     }
 
     LibXR::Mutex::LockGuard lock(mutex_);
     if (!TrySetRefreshRate(static_cast<RefreshRate>(rate))) {
-      LibXR::STDIO::Printf("Error: failed to update refresh rate.\r\n");
+      LibXR::STDIO::Printf<"Error: failed to update refresh rate.\r\n">();
       return -1;
     }
 
-    LibXR::STDIO::Printf("Refresh rate updated to %sHz.\r\n",
-                         ShellRefreshRateToString(refresh_rate_));
+    LibXR::STDIO::Printf<"Refresh rate updated to %sHz.\r\n">(
+        ShellRefreshRateToString(refresh_rate_));
     return 0;
   }
 
@@ -1747,17 +1748,17 @@ int MLX90640::HandleCommand(int argc, char **argv) {
     char *end = nullptr;
     const float value = std::strtof(argv[2], &end);
     if (end == argv[2] || *end != '\0' || value < 0.1f || value > 1.0f) {
-      LibXR::STDIO::Printf("Error: emissivity must be in [0.1, 1.0].\r\n");
+      LibXR::STDIO::Printf<"Error: emissivity must be in [0.1, 1.0].\r\n">();
       return -1;
     }
 
     LibXR::Mutex::LockGuard lock(mutex_);
     emissivity_ = value;
-    LibXR::STDIO::Printf("Emissivity updated to %.3f.\r\n", emissivity_);
+    LibXR::STDIO::Printf<"Emissivity updated to %.3f.\r\n">(emissivity_);
     return 0;
   }
 
-  LibXR::STDIO::Printf("Error: invalid arguments.\r\n");
+  LibXR::STDIO::Printf<"Error: invalid arguments.\r\n">();
   PrintUsage();
   return -1;
 }

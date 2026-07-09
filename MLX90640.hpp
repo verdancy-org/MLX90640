@@ -3,6 +3,7 @@
 // clang-format off
 /* === MODULE MANIFEST V2 ===
 module_description: XRobot Module for Melexis MLX90640 32x24 thermal IR array sensor
+constructor_args:
   - refresh_rate: MLX90640::RefreshRate::HZ_8
   - emissivity: 0.95
   - reflected_temperature_shift: 8.0
@@ -31,7 +32,7 @@ depends: []
 
 class MLX90640 : public LibXR::Application {
  public:
-  static constexpr std::size_t  = 32;
+  static constexpr std::size_t WIDTH = 32;
   static constexpr std::size_t HEIGHT = 24;
   static constexpr std::size_t PIXEL_COUNT = WIDTH * HEIGHT;
 
@@ -53,14 +54,14 @@ class MLX90640 : public LibXR::Application {
     float emissivity = 0.95f;
     uint8_t subpage = 0;
     uint8_t mode = 1;
-    std::array<float, kPixelCount> temperature = {};
+    std::array<float, PIXEL_COUNT> temperature = {};
   };
 
   struct ThermalImage {
     uint32_t frame_counter = 0;
     float min_value = 0.0f;
     float max_value = 0.0f;
-    std::array<float, kPixelCount> image = {};
+    std::array<float, PIXEL_COUNT> image = {};
   };
 
   struct ThermalStats {
@@ -89,7 +90,6 @@ class MLX90640 : public LibXR::Application {
 
  private:
   static constexpr uint8_t DEFAULT_ADDRESS = 0x33;
-  static constexpr std::size_t PIXEL_COUNT = 768U;
   static constexpr std::size_t AUX_COUNT = 64U;
   static constexpr std::size_t FRAME_COUNT = PIXEL_COUNT + AUX_COUNT + 2U;
   static constexpr std::size_t EEPROM_COUNT = 832U;
@@ -308,7 +308,7 @@ class MLX90640 : public LibXR::Application {
   float emissivity_;
   float reflected_temperature_shift_;
   bool use_chess_mode_;
-  uint8_t i2c_address_ = kDefaultAddress;
+  uint8_t i2c_address_ = DEFAULT_ADDRESS;
 
   LibXR::Topic topic_temperature_;
   LibXR::Topic topic_image_;
